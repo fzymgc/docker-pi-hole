@@ -11,7 +11,7 @@ jobs:
       - name: Build Docker Images
         run: |
           docker login docker.pkg.github.com --username fzymgc --password "${GITHUB_TOKEN}"
-          docker build . -t docker.pkg.github.com/${GITHUB_REPOSITORY}/pihole:${GITHUB_SHA}
+          docker build -f Dockerfile.amd64 . -t docker.pkg.github.com/${GITHUB_REPOSITORY}/pihole:${GITHUB_SHA}
           docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/pihole:${GITHUB_SHA}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
