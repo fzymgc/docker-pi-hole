@@ -9,8 +9,8 @@ export WEB_VERSION="$(cat /etc/docker-pi-hole-version)"
 # Only use for pre-production / testing
 export CHECKOUT_BRANCHES=false
 # Search for release/* branch naming convention for custom checkouts
-if [[ "$CORE_VERSION" == *"release/"* ]] ; then
-    CHECKOUT_BRANCHES=true
+if [[ "$CORE_VERSION" == *"release/"* ]]; then
+  CHECKOUT_BRANCHES=true
 fi
 
 apt-get update
@@ -23,7 +23,7 @@ which debconf-apt-progress
 mv "$(which debconf-apt-progress)" /bin/no_debconf-apt-progress
 
 # Get the install functions
-curl https://raw.githubusercontent.com/pi-hole/pi-hole/${CORE_VERSION}/automated%20install/basic-install.sh > "$PIHOLE_INSTALL"
+curl https://raw.githubusercontent.com/pi-hole/pi-hole/${CORE_VERSION}/automated%20install/basic-install.sh >"$PIHOLE_INSTALL"
 PH_TEST=true . "${PIHOLE_INSTALL}"
 
 # Preseed variables to assist with using --unattended install
@@ -37,7 +37,7 @@ PH_TEST=true . "${PIHOLE_INSTALL}"
   echo "INSTALL_WEB_SERVER=true"
   echo "INSTALL_WEB_INTERFACE=true"
   echo "LIGHTTPD_ENABLED=true"
-}>> "${setupVars}"
+} >>"${setupVars}"
 source $setupVars
 
 export USER=pihole
@@ -57,6 +57,12 @@ rm /usr/local/bin/service
 # IPv6 support for nc openbsd better than traditional
 apt-get install -y --force-yes netcat-openbsd
 
+# Install cloudflared
+curl -o /tmp/cloudflared.deb -L -C - 'https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb'
+apt-get install /tmp/cloudflared.deb && rm /tmp/cloudflared.deb
+useradd -s /usr/sbin/nologin -r -M cloudflared
+chown cloudflared:cloudflared /usr/local/bin/cloudflared
+
 piholeGitUrl="${piholeGitUrl}"
 webInterfaceGitUrl="${webInterfaceGitUrl}"
 webInterfaceDir="${webInterfaceDir}"
@@ -70,30 +76,30 @@ installPihole 2>&1 | tee "${tmpLog}"
 mv "${tmpLog}" /
 
 fetch_release_metadata() {
-    local directory="$1"
-    local version="$2"
-    pushd "$directory"
-    git fetch -t
-    git remote set-branches origin '*'
-    git fetch --depth 10
-    git checkout master
-    git reset --hard "$version"
-    popd
+  local directory="$1"
+  local version="$2"
+  pushd "$directory"
+  git fetch -t
+  git remote set-branches origin '*'
+  git fetch --depth 10
+  git checkout master
+  git reset --hard "$version"
+  popd
 }
 
-if [[ $CHECKOUT_BRANCHES == true ]] ; then
-    ln -s /bin/true /usr/local/bin/service
-    ln -s /bin/true /usr/local/bin/update-rc.d
-    echo y | bash -x pihole checkout core ${CORE_VERSION}
-    echo y | bash -x pihole checkout web ${WEB_VERSION}
-    echo y | bash -x pihole checkout ftl tweak/overhaul_overTime
-    # If the v is forgotten: ${CORE_VERSION/v/}
-    unlink /usr/local/bin/service
-    unlink /usr/local/bin/update-rc.d
+if [[ $CHECKOUT_BRANCHES == true ]]; then
+  ln -s /bin/true /usr/local/bin/service
+  ln -s /bin/true /usr/local/bin/update-rc.d
+  echo y | bash -x pihole checkout core ${CORE_VERSION}
+  echo y | bash -x pihole checkout web ${WEB_VERSION}
+  echo y | bash -x pihole checkout ftl tweak/overhaul_overTime
+  # If the v is forgotten: ${CORE_VERSION/v/}
+  unlink /usr/local/bin/service
+  unlink /usr/local/bin/update-rc.d
 else
-    # Reset to our tags so version numbers get detected correctly
-    fetch_release_metadata "${PI_HOLE_LOCAL_REPO}" "${CORE_VERSION}"
-    fetch_release_metadata "${webInterfaceDir}" "${WEB_VERSION}"
+  # Reset to our tags so version numbers get detected correctly
+  fetch_release_metadata "${PI_HOLE_LOCAL_REPO}" "${CORE_VERSION}"
+  fetch_release_metadata "${webInterfaceDir}" "${WEB_VERSION}"
 fi
 
 sed -i 's/readonly //g' /opt/pihole/webpage.sh

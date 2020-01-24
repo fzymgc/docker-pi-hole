@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+
+s6-echo "Stopping cloudflared"
+kill -9 $(pgrep cloudflared)
