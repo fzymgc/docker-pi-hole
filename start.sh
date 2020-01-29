@@ -5,7 +5,7 @@ export ServerIP
 export ServerIPv6
 export PYTEST
 export PHP_ENV_CONFIG
-export PHP_ERROR_LOG 
+export PHP_ERROR_LOG
 export HOSTNAME
 export WEBLOGDIR
 export DNS1
@@ -39,6 +39,16 @@ docker_checks
 #else
 #    regular_setup_functions
 #fi
+
+### LOCAL FZYMGC CHANGES
+echo " ::: FZMGC LOCAL CHANGES "
+rm -f "${setupVars}" && ln -sf /local/setupVars.conf "${setupVars}"
+rm -f /etc/pihole/adlists.list && ln -sf /local/adlists.list /etc/pihole/adlists.list
+rm -f /etc/pihole/regex.list && ln -sf /local/regex.list /etc/pihole/regex.list
+rm -f /etc/dnsmasq.d/01-pihole.conf && ln -sf /local/dnsmasq.d/01-pihole.conf /etc/dnsmasq.d/01-pihole.conf
+ls -latr /etc/pihole /etc/dnsmasq.d
+echo " ::: END FZMGC LOCAL CHANGES "
+### END
 
 fix_capabilities
 generate_password
