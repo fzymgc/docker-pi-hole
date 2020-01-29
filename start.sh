@@ -47,8 +47,6 @@ rm -f /etc/pihole/adlists.list && ln -sf /local/adlists.list /etc/pihole/adlists
 rm -f /etc/pihole/regex.list && ln -sf /local/regex.list /etc/pihole/regex.list
 rm -f /etc/dnsmasq.d/01-pihole.conf && ln -sf /local/dnsmasq.d/01-pihole.conf /etc/dnsmasq.d/01-pihole.conf
 ls -latr /etc/pihole /etc/dnsmasq.d
-export DNS1="127.0.0.1#5053"
-export DNS2=""
 echo " ::: END FZMGC LOCAL CHANGES "
 ### END
 
